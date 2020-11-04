@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Policy;
 using Newtonsoft.Json;
 using WebClient_Anbar_e_Sazemanha.Dto;
 using WebClient_Anbar_e_Sazemanha.Utilities;
@@ -161,6 +159,66 @@ namespace WebClient_Anbar_e_Sazemanha.Services
                         Console.WriteLine($"failed_condition: {output.failed_condition}");
                         Console.WriteLine($"failed_item: {output.failed_item}");
                         Console.WriteLine($"error_detail: {output.error_detail}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"The Web Service {statusCode}");
+                    return;
+                }
+
+            }
+            catch (ApplicationException ex)
+            {
+                Console.WriteLine("ApplicationException");
+                Console.WriteLine(ex);
+            }
+            catch (UnsupportedMediaTypeException ex)
+            {
+                Console.WriteLine("UnsupportedMediaType");
+                Console.WriteLine(ex);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("HttpRequestException");
+                Console.WriteLine(ex);
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine("AggregateException");
+                Console.WriteLine(ex);
+            }
+        }
+
+        public static void GetValue(string baseUrl,string authTokenFilePath,AuthenticationHeaderValue ahv)
+        {
+            try
+            {
+                string authToken = TokenTools.GetAuthToken(authTokenFilePath);
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = ahv;
+                client.BaseAddress = new Uri(baseUrl);
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                client.DefaultRequestHeaders.Add("AuthToken", authToken);
+
+
+                HttpResponseMessage response =
+                    client.GetAsync("api/values/1").Result;
+                string result = response.Content.ReadAsStringAsync().Result;
+                var statusCode = response.StatusCode;
+                if (statusCode == HttpStatusCode.OK)
+                {
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // print results
+                        Console.WriteLine($"city: {result}");
+                    }
+                    else
+                    {
+                        // error
+                        Console.WriteLine($"status code:{statusCode}");
                     }
                 }
                 else

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using WebClient_Anbar_e_Sazemanha.Dto;
 using WebClient_Anbar_e_Sazemanha.Services;
@@ -12,19 +15,16 @@ namespace WebClient_Anbar_e_Sazemanha
     {
         private static void Main(string[] args)
         {
-
-            var client = new HttpClient();
-
-
             // read config file
             string baseUrl = ConfigurationManager.AppSettings["baseUrl"];
            // string path = ConfigurationManager.AppSettings["path"];
-            string authTokenFilePath = ConfigurationManager.AppSettings["authTokenFilePath"];
+            string authTokenFileName = ConfigurationManager.AppSettings["authTokenFileName"];
             string basicAuthUser = ConfigurationManager.AppSettings["basicAuthUser"];
             string basicAuthPassword = ConfigurationManager.AppSettings["basicAuthPassword"];
             var basicAuthCredential = Encoding.ASCII.GetBytes(basicAuthUser + ":" + basicAuthPassword);
             AuthenticationHeaderValue ahv = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(basicAuthCredential));
 
+            string authTokenFilePath = Path.Combine(Directory.GetCurrentDirectory(), authTokenFileName);
 
             // متد زیر کلید امنیتی را تغییر می دهد
             // این متد نیاز نیست برای هر بار فراخوانی صدا زده شود . این متد وظیفه تازه سازی کلید امنیتی را دارد
@@ -62,7 +62,9 @@ namespace WebClient_Anbar_e_Sazemanha
 
             Receipt.Public_NWM_SReceiptPermanent(baseUrl,ahv,authTokenFilePath,input);
             Receipt.Public_NWM_SDraftPermanent(baseUrl,ahv,authTokenFilePath,input);
+            Receipt.GetValue(baseUrl,authTokenFilePath,ahv);
 
+            Console.ReadKey();
         }
 
     }
